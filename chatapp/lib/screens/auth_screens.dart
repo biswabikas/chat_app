@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:chatapp/screens/widgets/user_image_picker.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -20,6 +21,7 @@ class _AuthScreenState extends State<AuthScreen> {
   var enteredemail = '';
   var enteredpassword = '';
   var isAuthenticating = false;
+  var enteredusername = '';
   File? selectedimage;
   void submit() async {
     final isvalid = form.currentState!.validate();
@@ -43,7 +45,14 @@ class _AuthScreenState extends State<AuthScreen> {
             .child('${usercredentials.user!.uid}.jpg');
         await storageref.putFile(selectedimage!);
         final imageurl = await storageref.getDownloadURL();
-        print(imageurl);
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(usercredentials.user!.uid)
+            .set({
+          'username': enteredusername,
+          'email': enteredemail,
+          'image_url': imageurl,
+        });
       }
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {}
@@ -128,6 +137,28 @@ class _AuthScreenState extends State<AuthScreen> {
                           focusedBorder: OutlineInputBorder(),
                         ),
                       ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      if (!islogin)
+                        TextFormField(
+                          enableSuggestions: false,
+                          validator: (value) {
+                            if (value == null || value.trim().length < 4) {
+                              return 'Please enter the valid username atleast 4 characters';
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            labelText: 'UserName',
+                            enabledBorder: OutlineInputBorder(),
+                            focusedBorder: OutlineInputBorder(),
+                          ),
+                          onSaved: (value) {
+                            enteredusername = value!;
+                          },
+                        ),
                       const SizedBox(
                         height: 20,
                       ),
