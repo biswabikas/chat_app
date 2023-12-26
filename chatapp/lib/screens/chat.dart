@@ -1,3 +1,5 @@
+import 'package:chatapp/screens/widgets/chat_messages.dart';
+import 'package:chatapp/screens/widgets/new_messages.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -7,21 +9,25 @@ class ChatScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flutter chat'),
-        actions: [
-          IconButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
-            icon: const Icon(Icons.exit_to_app),
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ],
-      ),
-      body: const Center(
-        child: Text('Loggedin!'),
-      ),
-    );
+        appBar: AppBar(
+          title: const Text('Flutter chat'),
+          actions: [
+            IconButton(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+              },
+              icon: const Icon(Icons.exit_to_app),
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
+        body: const Column(
+          children: [
+            Expanded(
+              child: ChatMessages(),
+            ),
+            NewMessages(),
+          ],
+        ));
   }
 }
